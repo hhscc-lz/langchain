@@ -42,79 +42,79 @@ class PlanningState(AgentState[Any]):
     """List of todo items for tracking task progress."""
 
 
-WRITE_TODOS_TOOL_DESCRIPTION = """Use this tool to create and manage a structured task list for your current work session. This helps you track progress, organize complex tasks, and demonstrate thoroughness to the user.
+WRITE_TODOS_TOOL_DESCRIPTION = """使用此工具为当前工作会话创建和管理结构化任务清单。这可以帮助你跟踪进度、组织复杂任务，并向用户展示你的工作完整性。
 
 Only use this tool if you think it will be helpful in staying organized. If the user's request is trivial and takes less than 3 steps, it is better to NOT use this tool and just do the task directly.
 
-## When to Use This Tool
-Use this tool in these scenarios:
+## 何时使用此工具
+在以下场景使用此工具：
 
-1. Complex multi-step tasks - When a task requires 3 or more distinct steps or actions
-2. Non-trivial and complex tasks - Tasks that require careful planning or multiple operations
-3. User explicitly requests todo list - When the user directly asks you to use the todo list
-4. User provides multiple tasks - When users provide a list of things to be done (numbered or comma-separated)
-5. The plan may need future revisions or updates based on results from the first few steps
+1. 复杂的多步骤任务 - 当任务需要 3 个或更多不同步骤/动作时
+2. 非简单且复杂的任务 - 需要仔细规划或多次操作的任务
+3. 用户明确要求待办清单 - 用户直接要求你使用待办清单时
+4. 用户提供多个任务 - 用户提供要做的事项列表（编号或逗号分隔）
+5. 计划可能需要根据前几步的结果进行后续修订或更新
 
-## How to Use This Tool
-1. When you start working on a task - Mark it as in_progress BEFORE beginning work.
-2. After completing a task - Mark it as completed and add any new follow-up tasks discovered during implementation.
-3. You can also update future tasks, such as deleting them if they are no longer necessary, or adding new tasks that are necessary. Don't change previously completed tasks.
-4. You can make several updates to the todo list at once. For example, when you complete a task, you can mark the next task you need to start as in_progress.
+## 如何使用此工具
+1. 当你开始处理某个任务 - 在开始前将其标记为 in_progress。
+2. 当完成某个任务 - 将其标记为 completed，并添加执行过程中发现的新后续任务。
+3. 你也可以更新未来任务，例如删除不再需要的任务或添加必要的新任务。不要修改已完成的任务。
+4. 你可以一次性对待办清单进行多项更新。例如，完成一个任务时，可以把下一个要开始的任务标记为 in_progress。
 
-## When NOT to Use This Tool
-It is important to skip using this tool when:
-1. There is only a single, straightforward task
-2. The task is trivial and tracking it provides no benefit
-3. The task can be completed in less than 3 trivial steps
-4. The task is purely conversational or informational
+## 何时不使用此工具
+在以下情况应跳过使用此工具：
+1. 只有一个简单直接的任务
+2. 任务过于琐碎，跟踪它没有收益
+3. 任务可以在少于 3 个简单步骤内完成
+4. 任务纯属对话或信息性问题
 
-## Task States and Management
+## 任务状态与管理
 
-1. **Task States**: Use these states to track progress:
-   - pending: Task not yet started
-   - in_progress: Currently working on (you can have multiple tasks in_progress at a time if they are not related to each other and can be run in parallel)
-   - completed: Task finished successfully
+1. **任务状态**：使用以下状态跟踪进度：
+   - pending：任务尚未开始
+   - in_progress：正在进行（若任务彼此无关且可并行，可同时有多个 in_progress）
+   - completed：任务已成功完成
 
-2. **Task Management**:
-   - Update task status in real-time as you work
-   - Mark tasks complete IMMEDIATELY after finishing (don't batch completions)
-   - Complete current tasks before starting new ones
-   - Remove tasks that are no longer relevant from the list entirely
-   - IMPORTANT: When you write this todo list, you should mark your first task (or tasks) as in_progress immediately!.
-   - IMPORTANT: Unless all tasks are completed, you should always have at least one task in_progress to show the user that you are working on something.
+2. **任务管理**：
+   - 工作过程中实时更新任务状态
+   - 完成后立即标记为 completed（不要批量标记）
+   - 完成当前任务后再开始新任务
+   - 彻底移除不再相关的任务
+   - 重要：写入待办清单时，应立即将首个任务（或多个任务）标记为 in_progress。
+   - 重要：除非所有任务都已完成，否则应始终保持至少一个 in_progress，以便用户知道你正在处理某项任务。
 
-3. **Task Completion Requirements**:
-   - ONLY mark a task as completed when you have FULLY accomplished it
-   - If you encounter errors, blockers, or cannot finish, keep the task as in_progress
-   - When blocked, create a new task describing what needs to be resolved
-   - Never mark a task as completed if:
-     - There are unresolved issues or errors
-     - Work is partial or incomplete
-     - You encountered blockers that prevent completion
-     - You couldn't find necessary resources or dependencies
-     - Quality standards haven't been met
+3. **任务完成要求**：
+   - 只有在完全完成后才标记为 completed
+   - 如果遇到错误、阻塞或无法完成，保持 in_progress
+   - 被阻塞时，创建新任务描述需要解决的问题
+   - 以下情况不要标记为 completed：
+     - 仍有未解决的问题或错误
+     - 工作不完整或只是部分完成
+     - 遇到阻塞导致无法完成
+     - 缺少必要资源或依赖
+     - 未达到质量标准
 
-4. **Task Breakdown**:
-   - Create specific, actionable items
-   - Break complex tasks into smaller, manageable steps
-   - Use clear, descriptive task names
+4. **任务拆分**：
+   - 创建具体、可执行的事项
+   - 将复杂任务拆解为更小、更易管理的步骤
+   - 使用清晰、描述性强的任务名称
 
-Being proactive with task management demonstrates attentiveness and ensures you complete all requirements successfully
-Remember: If you only need to make a few tool calls to complete a task, and it is clear what you need to do, it is better to just do the task directly and NOT call this tool at all."""  # noqa: E501
+主动进行任务管理能体现你的细致与可靠，并确保你完成所有要求。
+记住：如果只需要少量工具调用即可完成任务，而且要做的事情很明确，那么最好直接完成，不要调用此工具。"""  # noqa: E501
 
 WRITE_TODOS_SYSTEM_PROMPT = """## `write_todos`
 
-You have access to the `write_todos` tool to help you manage and plan complex objectives.
-Use this tool for complex objectives to ensure that you are tracking each necessary step and giving the user visibility into your progress.
-This tool is very helpful for planning complex objectives, and for breaking down these larger complex objectives into smaller steps.
+你可以使用 `write_todos` 工具来管理并规划复杂目标。
+当目标复杂时使用该工具，确保你跟踪每个必要步骤，并让用户清楚看到你的进度。
+该工具非常适合规划复杂目标，以及将大型复杂目标拆分为更小步骤。
 
-It is critical that you mark todos as completed as soon as you are done with a step. Do not batch up multiple steps before marking them as completed.
-For simple objectives that only require a few steps, it is better to just complete the objective directly and NOT use this tool.
-Writing todos takes time and tokens, use it when it is helpful for managing complex many-step problems! But not for simple few-step requests.
+关键要求：完成一个步骤后要立即将对应待办标记为 completed，不要等多个步骤完成后再批量标记。
+如果目标只需要几个简单步骤，最好直接完成，不要使用此工具。
+编写待办会消耗时间和 tokens，请在需要管理复杂多步骤问题时使用，而非简单问题。
 
-## Important To-Do List Usage Notes to Remember
-- The `write_todos` tool should never be called multiple times in parallel.
-- Don't be afraid to revise the To-Do list as you go. New information may reveal new tasks that need to be done, or old tasks that are irrelevant."""  # noqa: E501
+## 重要的待办清单使用注意事项
+- `write_todos` 工具绝不能在同一轮中并行调用多次。
+- 随时修订待办清单是可以的，新信息可能带来新任务或让旧任务不再相关。"""  # noqa: E501
 
 
 @tool(description=WRITE_TODOS_TOOL_DESCRIPTION)
@@ -125,7 +125,7 @@ def write_todos(
     return Command(
         update={
             "todos": todos,
-            "messages": [ToolMessage(f"Updated todo list to {todos}", tool_call_id=tool_call_id)],
+            "messages": [ToolMessage(f"已更新待办清单为 {todos}", tool_call_id=tool_call_id)],
         }
     )
 
@@ -186,7 +186,7 @@ class TodoListMiddleware(AgentMiddleware):
                 update={
                     "todos": todos,
                     "messages": [
-                        ToolMessage(f"Updated todo list to {todos}", tool_call_id=tool_call_id)
+                        ToolMessage(f"已更新待办清单为 {todos}", tool_call_id=tool_call_id)
                     ],
                 }
             )
@@ -281,9 +281,8 @@ class TodoListMiddleware(AgentMiddleware):
             error_messages = [
                 ToolMessage(
                     content=(
-                        "Error: The `write_todos` tool should never be called multiple times "
-                        "in parallel. Please call it only once per model invocation to update "
-                        "the todo list."
+                        "错误：`write_todos` 工具不应在同一轮并行调用多次。"
+                        "请在每次模型调用中仅调用一次以更新待办清单。"
                     ),
                     tool_call_id=tc["id"],
                     status="error",
